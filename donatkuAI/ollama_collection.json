@@ -1,0 +1,163 @@
+{
+  "info": {
+    "name": "🦙 Ollama API - Local",
+    "_postman_id": "ollama-local-api-collection",
+    "description": "Collection untuk test Ollama API yang berjalan di localhost:11434.\n\nModel tersedia: llama3.2:3b\n\nCara pakai:\n1. Import collection ini ke Postman\n2. Pilih request yang ingin ditest\n3. Klik Send!",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:11434",
+      "type": "string",
+      "description": "Base URL Ollama API"
+    },
+    {
+      "key": "model",
+      "value": "llama3.2:3b",
+      "type": "string",
+      "description": "Model yang digunakan"
+    }
+  ],
+  "item": [
+    {
+      "name": "✅ 1. Cek Status Ollama (GET)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}",
+          "host": ["{{base_url}}"]
+        },
+        "description": "Cek apakah Ollama berjalan. Jika berhasil, akan muncul teks 'Ollama is running'."
+      },
+      "response": []
+    },
+    {
+      "name": "📋 2. Lihat Daftar Model (GET)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/api/tags",
+          "host": ["{{base_url}}"],
+          "path": ["api", "tags"]
+        },
+        "description": "Melihat semua model yang sudah terinstall di Ollama."
+      },
+      "response": []
+    },
+    {
+      "name": "💬 3. Chat dengan AI (POST)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"model\": \"{{model}}\",\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": \"Halo! Siapa kamu dan apa yang bisa kamu bantu?\"\n    }\n  ],\n  \"stream\": false\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/chat",
+          "host": ["{{base_url}}"],
+          "path": ["api", "chat"]
+        },
+        "description": "Kirim pesan ke AI dan dapatkan balasan. Gunakan 'stream: false' agar respons muncul sekaligus."
+      },
+      "response": []
+    },
+    {
+      "name": "✍️ 4. Generate Teks (POST)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"model\": \"{{model}}\",\n  \"prompt\": \"Jelaskan apa itu kecerdasan buatan (AI) dalam 3 kalimat sederhana.\",\n  \"stream\": false\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/generate",
+          "host": ["{{base_url}}"],
+          "path": ["api", "generate"]
+        },
+        "description": "Generate teks sederhana tanpa format percakapan. Cocok untuk prompt langsung."
+      },
+      "response": []
+    },
+    {
+      "name": "🧠 5. Chat Multi-Turn (Percakapan) (POST)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"model\": \"{{model}}\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"Kamu adalah asisten AI yang membantu. Jawab dalam Bahasa Indonesia yang sopan dan ramah.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Apa ibu kota Indonesia?\"\n    },\n    {\n      \"role\": \"assistant\",\n      \"content\": \"Ibu kota Indonesia adalah Jakarta.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Sekarang ibu kotanya sudah pindah belum?\"\n    }\n  ],\n  \"stream\": false\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/chat",
+          "host": ["{{base_url}}"],
+          "path": ["api", "chat"]
+        },
+        "description": "Contoh percakapan multi-turn dengan riwayat chat. Termasuk system prompt dan konteks percakapan sebelumnya."
+      },
+      "response": []
+    },
+    {
+      "name": "ℹ️ 6. Info Detail Model (POST)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"model\": \"{{model}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/api/show",
+          "host": ["{{base_url}}"],
+          "path": ["api", "show"]
+        },
+        "description": "Melihat detail lengkap model seperti parameter, format, dan konfigurasi."
+      },
+      "response": []
+    }
+  ]
+}
