@@ -748,13 +748,14 @@ HTML_PAGE = """<!DOCTYPE html>
       margin: 0 auto;
       background: var(--card-bg);
       border: 1.5px solid var(--border-color);
-      border-radius: 18px;
-      padding: 10px 14px;
+      border-radius: 20px;
+      padding: 8px 16px;
       display: flex;
-      align-items: flex-end;
+      align-items: center; /* Teks dan tombol pas di tengah vertikal */
       gap: 10px;
       box-shadow: 0 4px 16px rgba(43, 24, 16, 0.05);
       transition: border-color 0.2s, box-shadow 0.2s;
+      min-height: 52px;
     }
 
     .input-container:focus-within {
@@ -773,14 +774,31 @@ HTML_PAGE = """<!DOCTYPE html>
       color: var(--text-main);
       max-height: 140px;
       height: 24px;
-      line-height: 1.5;
-      padding: 2px 0;
+      line-height: 24px; /* Vertikal center di dalam textarea */
+      padding: 0;
+      margin: 0;
       -webkit-appearance: none;
       appearance: none;
       pointer-events: auto;
       cursor: text;
       user-select: text;
       -webkit-user-select: text;
+      overflow: hidden; /* Hilangkan panah atas-bawah dan scrollbar */
+      scrollbar-width: none; /* Firefox */
+      -ms-overflow-style: none; /* IE/Edge */
+    }
+
+    /* Hilangkan panah scrollbar atas/bawah pada Chrome, Edge, Safari */
+    textarea#prompt-input::-webkit-scrollbar {
+      display: none !important;
+      width: 0 !important;
+      height: 0 !important;
+    }
+
+    textarea#prompt-input::-webkit-inner-spin-button,
+    textarea#prompt-input::-webkit-outer-spin-button {
+      -webkit-appearance: none !important;
+      margin: 0 !important;
     }
 
     button#send-btn {
@@ -1033,9 +1051,30 @@ HTML_PAGE = """<!DOCTYPE html>
       }
     }
 
+    function resetInputBox() {
+      promptInput.value = '';
+      promptInput.style.height = '24px';
+      promptInput.style.lineHeight = '24px';
+      promptInput.style.overflowY = 'hidden';
+      const container = promptInput.closest('.input-container');
+      if (container) container.style.alignItems = 'center';
+    }
+
     function autoResize(el) {
       el.style.height = 'auto';
-      el.style.height = Math.min(el.scrollHeight, 140) + 'px';
+      const newHeight = Math.min(el.scrollHeight, 140);
+      el.style.height = newHeight + 'px';
+
+      const container = el.closest('.input-container');
+      if (newHeight > 32) {
+        el.style.lineHeight = '1.5';
+        el.style.overflowY = el.scrollHeight > 140 ? 'auto' : 'hidden';
+        if (container) container.style.alignItems = 'flex-end';
+      } else {
+        el.style.lineHeight = '24px';
+        el.style.overflowY = 'hidden';
+        if (container) container.style.alignItems = 'center';
+      }
     }
 
     function handleKeyDown(e) {
@@ -1067,8 +1106,7 @@ HTML_PAGE = """<!DOCTYPE html>
       saveChats();
       renderHistory();
       renderChatMessages();
-      promptInput.value = '';
-      promptInput.style.height = '24px';
+      resetInputBox();
       promptInput.focus();
     }
 
@@ -1080,8 +1118,7 @@ HTML_PAGE = """<!DOCTYPE html>
       currentChatId = chatId;
       renderHistory();
       renderChatMessages();
-      promptInput.value = '';
-      promptInput.style.height = '24px';
+      resetInputBox();
       if (window.innerWidth <= 768) {
         sidebar.classList.remove('mobile-open');
         overlay.classList.remove('active');
@@ -1316,8 +1353,7 @@ HTML_PAGE = """<!DOCTYPE html>
       appendMessageElement('user', text);
       saveChats();
 
-      promptInput.value = '';
-      promptInput.style.height = '24px';
+      resetInputBox();
       promptInput.disabled = true;
       sendBtn.disabled = true;
 
@@ -1360,8 +1396,6 @@ HTML_PAGE = """<!DOCTYPE html>
           // Render markdown + sisipkan cursor inline di akhir elemen terakhir
           botBubble.innerHTML = marked.parse(fullResponse);
           injectInlineCursor(botBubble);
-
-          // Smart scroll hanya kalau user masih di chat ini
           if (currentChatId === targetChatId) {
             smartScroll();
           }
@@ -1369,6 +1403,9 @@ HTML_PAGE = """<!DOCTYPE html>
 
         // Selesai — hapus cursor, tampilkan teks final
         botBubble.innerHTML = marked.parse(fullResponse);
+        if (currentChatId === targetChatId) {
+          smartScroll();
+        }
 
         // Simpan response ke chat yang BENAR (berdasarkan targetChatId)
         // bukan currentChatId yang mungkin sudah berubah
